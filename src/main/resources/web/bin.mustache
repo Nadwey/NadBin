@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="/style.css" />
+    <title>NadBin | Bin</title>
+</head>
+
+<body>
+    <div style="width: 70%; margin: 0 15%;">
+        <span class="title">{{bin}}</span><br />
+        <br />
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Size</th>
+                    <th>Type</th>
+                </tr>
+            </thead>
+            <tbody id="files">
+    
+            </tbody>
+        </table>
+        <br />
+        <button class="upload-button" onclick="upload();">Upload</button>
+    </div>
+
+    <script>
+        async function upload() {
+            let fileInput = document.createElement("input");
+            fileInput.type = "file";
+
+            async function uploadFile() {
+                let file = fileInput.files[0];
+                if (!file) {
+                    alert("Please select a file.");
+                    return;
+                }
+
+                let formData = new FormData();
+
+                formData.append("file", file);
+
+                let result = await fetch(`/{{bin}}/${file.name}`, { method: "POST", body: formData });
+                let data = await result.json();
+
+                if (result.status === 200) {
+                    update();
+                }
+            }
+
+            fileInput.onchange = uploadFile;
+            fileInput.click();
+        }
+
+        async function update() {
+            // the ?bin search param does nothing, it's just here to prevent browsers from displaying json instead of the site sometimes
+            let result = await fetch('/{{bin}}?bin', { method: "GET", headers: { "Accept": "application/json" } });
+            let data = await result.json();
+
+            if (result.status === 200) {
+                document.getElementById("files").innerHTML = "";
+                for (const file of data.files) {
+                    let tr = document.createElement("tr");
+
+                    function addColumn(element) {
+                        let td = document.createElement("td");
+                        td.appendChild(element);
+                        tr.appendChild(td);
+                    }
+
+                    let name = document.createElement("a");
+                    name.href = `/{{bin}}/${file.name}`;
+                    name.innerText = file.name;
+                    addColumn(name);
+
+                    let size = document.createElement("span");
+                    size.innerText = file.size;
+                    addColumn(size);
+
+                    let type = document.createElement("span");
+                    type.innerText = file.type;
+                    addColumn(type);
+
+
+                    document.getElementById("files").appendChild(tr);
+                }
+            }
+        }
+
+        update();
+    </script>
+</body>
+
+</html>

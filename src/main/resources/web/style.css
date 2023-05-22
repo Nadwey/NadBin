@@ -1,0 +1,85 @@
+@font-face {
+    font-family: "Quicksand";
+    src: url(/Quicksand.ttf);
+}
+
+body {
+    font-family: "Quicksand";
+    background-color: #0a0a0a;
+    color: white;
+}
+
+.title {
+    font-size: 2rem;
+}
+
+.link-button {
+    display: inline-block;
+    font-size: 1.25rem;
+    background-color: #125fc4;
+    color: white;
+    padding: 10px 30px;
+    border-radius: 5px;
+    text-decoration: none;
+}
+
+.upload-button {
+    font-size: 1.125rem;
+    background-color: #125fc4;
+    color: white;
+    padding: 7px 20px;
+    outline: none;
+    border: none;
+    border-radius: 3px;
+    text-decoration: none;
+}
+
+#drop_zone {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border: 10px dotted #555555;
+    border-radius: 5vw 5vw;
+    margin: 3%;
+}
+
+table {
+    font-family: "Quicksand";
+    width: 100%;
+    background-color: #151515;
+    border-radius: 3px;
+    border-collapse: collapse;
+}
+
+td,
+th {
+    font-family: "Quicksand";
+    text-align: left;
+    padding: 14px;
+    font-weight: normal;
+}
+
+thead tr {
+    border-bottom: 1px solid #555555;
+    padding: 3px;
+}
+
+tbody tr {
+    border-bottom: 1px solid #555555;
+    padding: 3px;
+}
+
+tbody tr:last-child {
+    border-bottom: none;
+}
+
+
+table a {
+    color: #7ecbff;
+    text-decoration: none;
+}

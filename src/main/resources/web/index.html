@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="/style.css" />
+    <title>NadBin</title>
+</head>
+
+<body>
+    <span class="title">Welcome to NadBin!</span><br />
+    Temporary anonymous file sharing.
+    <br /><br />
+    <button class="upload-button" onclick="upload();">Upload</button>
+
+    <script>
+        async function upload() {
+            let fileInput = document.createElement("input");
+            fileInput.type = "file";
+
+            async function uploadFile() {
+                let file = fileInput.files[0];
+                if (!file) {
+                    alert("Please select a file.");
+                    return;
+                }
+
+                let formData = new FormData();
+
+                formData.append("file", file);
+
+                let result = await fetch('/upload', { method: "POST", body: formData });
+                let data = await result.json();
+
+                if (result.status === 200) {
+                    location.href = "/" + data.bin;
+                }
+            }
+
+            fileInput.onchange = uploadFile;
+            fileInput.click();
+        }
+    </script>
+</body>
+
+</html>
