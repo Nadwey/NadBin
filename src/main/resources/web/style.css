@@ -83,3 +83,22 @@ table a {
     color: #7ecbff;
     text-decoration: none;
 }
+
+#upload-progresses .upload-progress {
+    margin: 5px 0;
+    padding: 15px;
+    background-color: #151515;
+    border-radius: 5px;
+    width: 100%;
+    position: relative;
+}
+
+#upload-progresses .upload-bar {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 2px;
+    width: 0%;
+    background-color: #2080ff;
+}

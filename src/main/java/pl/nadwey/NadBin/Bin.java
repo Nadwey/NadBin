@@ -5,5 +5,5 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Bin implements Serializable {
-    public List<DBFile> files = new ArrayList<DBFile>();
+    public List<DBFile> files = new ArrayList<>();
 }

@@ -7,7 +7,7 @@ public class DBFile implements Serializable {
         this.name = name;
         this.localPath = localPath;
         this.size = size;
-    };
+    }
 
     public String name;
     public String localPath;
