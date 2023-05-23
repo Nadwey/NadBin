@@ -3,9 +3,14 @@
     src: url(/Quicksand.ttf);
 }
 
+/* ****** */
+/* GLOBAL */
+/* ****** */
+
+
 body {
     font-family: "Quicksand";
-    background-color: #0a0a0a;
+    background-color: #131313;
     color: white;
 }
 
@@ -13,25 +18,61 @@ body {
     font-size: 2rem;
 }
 
-.link-button {
-    display: inline-block;
-    font-size: 1.25rem;
-    background-color: #125fc4;
-    color: white;
-    padding: 10px 30px;
-    border-radius: 5px;
-    text-decoration: none;
+.subtitle {
+    font-size: 1.2rem;
+    letter-spacing: -0.01rem;
+    font-weight: lighter;
+    color: #aaaaaa;
 }
 
 .upload-button {
-    font-size: 1.125rem;
-    background-color: #125fc4;
+    font-size: 14px;
+    background-color: #2f6fce;
     color: white;
-    padding: 7px 20px;
+    padding: 10px 15px;
     outline: none;
     border: none;
-    border-radius: 3px;
+    border-radius: 6px;
     text-decoration: none;
+    font-weight: bold;
+    line-height: normal;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.upload-button:hover {
+    background-color: #1a52a7;
+}
+
+/* *********** */
+/* /index.html */
+/* *********** */
+
+#index-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#index-container .title-container {
+    font-family: Quicksand;
+    line-height: 1.46rem;
+    text-align: center;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-self: center;
+    align-items: center;
+}
+
+#index-container .title-container .title {
+    font-size: 2.2rem;
+    letter-spacing: -0.06rem;
 }
 
 #drop_zone {
@@ -48,12 +89,19 @@ body {
     margin: 3%;
 }
 
+/* **** */
+/* /bin */
+/* **** */
+
 table {
     font-family: "Quicksand";
     width: 100%;
-    background-color: #151515;
-    border-radius: 3px;
+    background-color: #1a1a1a;
+    border-radius: 10px;
     border-collapse: collapse;
+    -webkit-box-shadow: 0px 0px 24px -11px rgba(0, 0, 0, 1);
+    -moz-box-shadow: 0px 0px 24px -11px rgba(0, 0, 0, 1);
+    box-shadow: 0px 0px 24px -11px rgba(0, 0, 0, 1);
 }
 
 td,
@@ -87,7 +135,7 @@ table a {
 #upload-progresses .upload-progress {
     margin: 5px 0;
     padding: 15px;
-    background-color: #151515;
+    background-color: #1a1a1a;
     border-radius: 5px;
     width: 100%;
     position: relative;
@@ -101,4 +149,20 @@ table a {
     height: 2px;
     width: 0%;
     background-color: #2080ff;
+}
+
+.delete-button {
+    background-image: url(./trash.svg);
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: transparent;
+    outline: none;
+    border: none;
+    margin: 0;
+    padding: 13px;
+    height: 0;
+    width: 0;
+    vertical-align: middle;
+    cursor: pointer;
 }

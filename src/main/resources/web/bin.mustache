@@ -9,8 +9,10 @@
 
 <body>
     <div style="width: 70%; margin: 0 15%;">
-        <span class="title">{{bin}}</span><br />
-        <br />
+        <span style="font-weight: bold;" class="title"><span
+                style="color: #2f6fce;">Nad</span>Bin</span><br />
+        <span style="font-size: 1rem;" class="subtitle">/{{bin}}</span>
+        <br /><br />
         <table>
             <thead>
                 <tr>
@@ -92,6 +94,7 @@
             if (result.status === 200) {
                 document.getElementById("files").innerHTML = "";
                 for (const file of data.files) {
+                    const fileName = file.name;
                     let tr = document.createElement("tr");
 
                     function addColumn(element) {
@@ -101,8 +104,8 @@
                     }
 
                     let name = document.createElement("a");
-                    name.href = `/{{bin}}/${file.name}`;
-                    name.innerText = file.name;
+                    name.href = `/{{bin}}/${fileName}`;
+                    name.innerText = fileName;
                     addColumn(name);
 
                     let size = document.createElement("span");
@@ -112,6 +115,15 @@
                     let type = document.createElement("span");
                     type.innerText = file.type;
                     addColumn(type);
+
+                    let delButton = document.createElement("button");
+                    delButton.classList.add("delete-button");
+                    delButton.addEventListener("click", () => {
+                        fetch(`/{{bin}}/${fileName}`, { method: "DELETE" }).then(() => {
+                            update();
+                        });
+                    });
+                    addColumn(delButton);
 
 
                     document.getElementById("files").appendChild(tr);

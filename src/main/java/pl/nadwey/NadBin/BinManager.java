@@ -8,6 +8,7 @@ import org.mapdb.Serializer;
 
 import java.io.*;
 import java.nio.file.Paths;
+import java.util.Iterator;
 import java.util.UUID;
 
 public class BinManager {
@@ -98,5 +99,28 @@ public class BinManager {
         if (bin == null) return null;
 
         return getFile(bin, name);
+    }
+
+    public Bin removeInternal(Bin bin, String name) {
+        Iterator<DBFile> iterator = bin.files.iterator();
+        DBFile toRemove = null;
+        while (iterator.hasNext()) {
+            DBFile dbFile = iterator.next();
+            if (dbFile.name.equals(name)) {
+                File file = new File(dbFile.localPath);
+                file.delete();
+                toRemove = dbFile;
+            }
+        }
+        bin.files.remove(toRemove);
+        return bin;
+    }
+
+    public void remove(String binID, String name) {
+        Bin bin = getBin(binID);
+        if (bin == null) throw new RuntimeException("Bin not found.");
+
+        fileDB.put(binID, removeInternal(bin, name));
+        // removeInternal(bin, name);
     }
 }

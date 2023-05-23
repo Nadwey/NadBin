@@ -27,6 +27,7 @@ public class Main {
         serveResource(app, "web/index.html", "/");
         serveResource(app, "web/style.css", "/style.css");
         serveResource(app, "web/Quicksand.ttf", "/Quicksand.ttf");
+        serveResource(app, "web/trash.svg", "/trash.svg");
 
         app.get("/new-bin", ctx -> {
             String binID;
@@ -43,13 +44,13 @@ public class Main {
             String fileParam = ctx.pathParam("file");
 
             if (!binManager.binExists(binParam)) {
-                fail(ctx, "Bin doesn't exist.");
+                fail(ctx, "Bin doesn't exist.", 404);
                 return;
             }
             DBFile file = binManager.getFile(binParam, fileParam);
 
             if (file.localPath == null) {
-                fail(ctx, "File doesn't exist.");
+                fail(ctx, "File doesn't exist.", 404);
                 return;
             }
 
@@ -67,17 +68,22 @@ public class Main {
             String binParam = ctx.pathParam("bin");
             String fileParam = ctx.pathParam("file");
 
+            if (!binParam.matches("^[a-zA-Z0-9-_]+$")) {
+                fail(ctx, "Invalid bin name", 400);
+                return;
+            }
+
             UploadedFile uploadedFile = ctx.uploadedFile("file");
             if (uploadedFile == null) {
-                fail(ctx, "No uploaded file");
+                fail(ctx, "No uploaded file", 400);
                 return;
             }
             if (reservedBins.contains(binParam)) {
-                fail(ctx, "Reserved bin name");
+                fail(ctx, "Reserved bin name", 403);
                 return;
             }
             if (binManager.binExists(binParam, fileParam)) {
-                fail(ctx, "File with the same name already exists");
+                fail(ctx, "File with the same name already exists", 409);
                 return;
             }
 
@@ -92,12 +98,29 @@ public class Main {
             ctx.result(gson.toJson(resultMap));
         });
 
+        app.delete("/{bin}/{file}", ctx -> {
+            String binParam = ctx.pathParam("bin");
+            String fileParam = ctx.pathParam("file");
+
+            if (!binManager.binExists(binParam, fileParam)) {
+                fail(ctx, "Specified bin or file doesn't exist.", 404);
+                return;
+            }
+
+            binManager.remove(binParam, fileParam);
+        });
+
         app.get("/{bin}", ctx -> {
             String binParam = ctx.pathParam("bin");
 
+            if (!binParam.matches("^[a-zA-Z0-9-_]+$")) {
+                fail(ctx, "Invalid bin name", 400);
+                return;
+            }
+
             if (ctx.header("Accept") != null && Objects.equals(ctx.header("Accept"), "application/json")) {
                 if (!binManager.binExists(binParam)) {
-                    fail(ctx, "Bin doesn't exist.");
+                    fail(ctx, "Bin doesn't exist.", 404);
                     return;
                 }
 
@@ -130,13 +153,17 @@ public class Main {
         });
     }
 
-    private static void fail(Context ctx, String message) {
+    private static void fail(Context ctx, String message, int code) {
         Gson gson = new Gson();
         Map<String, String> resultMap = new HashMap<>();
         resultMap.put("message", message);
 
-        ctx.status(500);
+        ctx.status(code);
         ctx.result(gson.toJson(resultMap));
+    }
+
+    private static void fail(Context ctx, String message) {
+        fail(ctx, message, 500);
     }
 
     private static void serveResource(Javalin app, String path, String url) {
