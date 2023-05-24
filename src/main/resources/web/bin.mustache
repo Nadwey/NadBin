@@ -11,8 +11,10 @@
     <div style="width: 70%; margin: 0 15%;">
         <span style="font-weight: bold;" class="title"><span
                 style="color: #2f6fce;">Nad</span>Bin</span><br />
-        <span style="font-size: 1rem;" class="subtitle">/{{bin}}</span>
-        <br /><br />
+        <span style="font-size: 1rem;" class="subtitle">/{{bin}} <span id="creation-date"></span></span>
+        <br />
+        <div id="doesnt-exist-warning" class="warning" style="display: none;">This bin doesn't exist, uploading files will create it.</div>
+        <br />
         <table>
             <thead>
                 <tr>
@@ -27,6 +29,7 @@
         </table>
         <br />
         <button class="upload-button" onclick="upload();">Upload</button>
+        <button class="remove-button" onclick="remove();">Remove</button>
         <br /><br />
         <div id="upload-progresses"></div>
     </div>
@@ -91,7 +94,10 @@
             let result = await fetch("/{{bin}}?bin", { method: "GET", headers: { "Accept": "application/json" } });
             let data = await result.json();
 
+            document.getElementById("creation-date").innerText = "";
+
             if (result.status === 200) {
+                document.getElementById("doesnt-exist-warning").style.display = "none";
                 document.getElementById("files").innerHTML = "";
                 for (const file of data.files) {
                     const fileName = file.name;
@@ -127,8 +133,17 @@
 
 
                     document.getElementById("files").appendChild(tr);
+                    document.getElementById("creation-date").innerText = ` - Created ${data.creationDate}`;
                 }
+            } else if (result.status === 404) {
+                document.getElementById("doesnt-exist-warning").style.display = "block";
             }
+        }
+
+        function remove() {
+            fetch(`/{{bin}}`, { method: "DELETE" }).then(() => {
+                window.location.href = "/";
+            });
         }
 
         update();

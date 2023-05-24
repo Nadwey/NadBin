@@ -110,6 +110,17 @@ public class Main {
             binManager.remove(binParam, fileParam);
         });
 
+        app.delete("/{bin}", ctx -> {
+            String binParam = ctx.pathParam("bin");
+
+            if (!binManager.binExists(binParam)) {
+                fail(ctx, "Specified bin doesn't exist.", 404);
+                return;
+            }
+
+            binManager.removeBin(binParam);
+        });
+
         app.get("/{bin}", ctx -> {
             String binParam = ctx.pathParam("bin");
 
@@ -140,7 +151,10 @@ public class Main {
                 }
 
                 Map<String, Object> resultMap = new HashMap<>();
+
                 resultMap.put("files", fileList);
+                resultMap.put("creationDate", bin.creationDate.toString());
+
                 Gson gson = new Gson();
                 ctx.result(gson.toJson(resultMap));
                 return;

@@ -8,6 +8,7 @@ import org.mapdb.Serializer;
 
 import java.io.*;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.util.Iterator;
 import java.util.UUID;
 
@@ -52,7 +53,10 @@ public class BinManager {
 
     public void addFileToBin(String binID, String name, String localPath, long size) {
         Bin bin = getBin(binID);
-        if (bin == null) bin = new Bin();
+        if (bin == null) {
+            bin = new Bin();
+            bin.creationDate = LocalDate.now();
+        }
 
         if (binExists(bin, name)) return;
 
@@ -122,5 +126,17 @@ public class BinManager {
 
         fileDB.put(binID, removeInternal(bin, name));
         // removeInternal(bin, name);
+    }
+
+    public void removeBin(String binID) {
+        Bin bin = getBin(binID);
+        if (bin == null) throw new RuntimeException("Bin not found.");
+
+        for (final DBFile dbFile : bin.files) {
+            File file = new File(dbFile.localPath);
+            file.delete();
+        }
+
+        fileDB.remove(binID);
     }
 }
