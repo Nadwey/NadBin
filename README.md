@@ -2,7 +2,8 @@
 
 Temporary anonymous file sharing
 
-**NadBin is still in development and not ready for production use.**
+**NadBin is still in development and not ready for production use.**  
+And the code is very shitty, I'm working on it, I promise :D
 
 ## Why NadBin?
 
