@@ -20,7 +20,7 @@ jobs:
   build_matrix:
     strategy:
       matrix:
-        version: [11, 17]
+        version: [11, 17, 20]
     runs-on: ubuntu-latest
 
     steps:
@@ -37,5 +37,5 @@ jobs:
     - name: Upload .jar
       uses: actions/upload-artifact@v3
       with:
-        name: NadBin
+        name: NadBin-Java_${{ matrix.version }}
         path: build/libs
