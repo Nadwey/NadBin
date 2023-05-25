@@ -17,7 +17,7 @@ And the code is very shitty, I'm working on it, I promise :D
 
 ### Requirements
 
-- Java (tested with 17)
+- Java 11+ (8 will not work because of Javalin)
 
 ### Install & Run
 

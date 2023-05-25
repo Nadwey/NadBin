@@ -36,7 +36,7 @@ sourceSets {
 }
 
 allprojects {
-    tasks.withType(Copy).all {
+    tasks.withType(Copy).configureEach {
         duplicatesStrategy = DuplicatesStrategy.INCLUDE
     }
 }
