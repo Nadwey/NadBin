@@ -21,7 +21,7 @@ jobs:
     name: Build with Gradle (Java ${{ matrix.version }})
     strategy:
       matrix:
-        version: [11, 17, 20]
+        version: [11, 17]
     runs-on: ubuntu-latest
 
     steps:
