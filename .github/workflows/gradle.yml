@@ -18,6 +18,7 @@ permissions:
 
 jobs:
   build_matrix:
+    name: Build with Gradle (Java ${{ matrix.version }})
     strategy:
       matrix:
         version: [11, 17, 20]
