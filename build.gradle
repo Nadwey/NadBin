@@ -48,3 +48,11 @@ jar {
         )
     }
 }
+
+shadowJar {
+    def javaVersion = System.getProperty('java.version').tokenize(".")[0];
+
+    System.out.println(javaVersion);
+
+    archiveFileName = "NadBin-${version}-java${javaVersion}.jar"
+}
