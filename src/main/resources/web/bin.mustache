@@ -136,6 +136,7 @@
                     document.getElementById("creation-date").innerText = ` - Created ${data.creationDate}`;
                 }
             } else if (result.status === 404) {
+                document.getElementById("files").innerHTML = "";
                 document.getElementById("doesnt-exist-warning").style.display = "block";
             }
         }

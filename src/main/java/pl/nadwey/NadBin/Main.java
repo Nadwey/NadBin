@@ -109,6 +109,8 @@ public class Main {
             }
 
             binManager.remove(binParam, fileParam);
+
+            ctx.result();
         });
 
         app.delete("/{bin}", ctx -> {
@@ -120,6 +122,8 @@ public class Main {
             }
 
             binManager.removeBin(binParam);
+
+            ctx.result();
         });
 
         app.get("/{bin}", ctx -> {
