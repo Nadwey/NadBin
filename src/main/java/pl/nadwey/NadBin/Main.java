@@ -58,6 +58,7 @@ public class Main {
                 String mimeType = Files.probeContentType(Paths.get(fileParam));
                 ctx.header("Content-Disposition", "attachment; filename=\"" + fileParam + "\"");
                 ctx.header("Content-Type", mimeType == null ? "application/octet-stream" : mimeType);
+                ctx.header("Content-Length", Long.toString(file.size));
                 ctx.result(new FileInputStream(file.localPath));
             } catch (FileNotFoundException e) {
                 fail(ctx, "Error reading file.");
