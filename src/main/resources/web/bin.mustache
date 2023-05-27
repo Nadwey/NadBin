@@ -142,7 +142,7 @@
 
         function remove() {
             fetch(`/{{bin}}`, { method: "DELETE" }).then(() => {
-                window.location.href = "/";
+                update();
             });
         }
 
