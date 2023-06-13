@@ -1,6 +1,7 @@
 plugins {
     id 'com.github.johnrengelman.shadow' version '8.1.1'
     id 'java'
+    id 'application'
 }
 
 group = 'pl.nadwey'
@@ -11,13 +12,13 @@ repositories {
 }
 
 dependencies {
-    implementation("io.javalin:javalin:5.5.0")
+    implementation("io.javalin:javalin:5.6.0")
     implementation("org.slf4j:slf4j-simple:2.0.7")
     implementation("net.sourceforge.argparse4j:argparse4j:0.9.0")
-    implementation("com.google.guava:guava:32.0.0-jre")
+    implementation("com.google.guava:guava:32.0.1-jre")
     implementation("org.mapdb:mapdb:3.0.9")
     implementation("com.google.code.gson:gson:2.10.1")
-    implementation("io.javalin:javalin-rendering:5.5.0")
+    implementation("io.javalin:javalin-rendering:5.6.0")
     implementation("com.github.spullara.mustache.java:compiler:0.9.10")
 }
 
@@ -55,4 +56,8 @@ shadowJar {
     System.out.println(javaVersion);
 
     archiveFileName = "NadBin-${version}-java${javaVersion}.jar"
+}
+
+application {
+    mainClassName = "pl.nadwey.NadBin.Main"
 }
