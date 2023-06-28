@@ -19,6 +19,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 public class Main {
     // TODO: make config file or something
@@ -39,6 +40,17 @@ public class Main {
         Router router = Router.router(vertx);
 
         router.route("/*").handler(StaticHandler.create());
+
+        router
+                .route(HttpMethod.GET, "/new-bin")
+                .handler(ctx -> {
+                    String binID;
+                    do {
+                        binID = UUID.randomUUID().toString();
+                    } while (dbManager.binExists(binID));
+
+                    ctx.redirect("/" + binID);
+                });
 
         router
                 .route(HttpMethod.GET, "/test")
@@ -207,6 +219,7 @@ public class Main {
 
 
         server.requestHandler(router).listen(7000);
+        System.out.println("NadBin running on port 7000");
     }
 
     private static void status(RoutingContext ctx, String message, int code) {
