@@ -1,22 +1,19 @@
 package pl.nadwey.NadBin;
 
-import io.javalin.http.UploadedFile;
 import org.mapdb.BTreeMap;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 import org.mapdb.Serializer;
 
-import java.io.*;
-import java.nio.file.Paths;
+import java.io.File;
 import java.time.LocalDate;
 import java.util.Iterator;
-import java.util.UUID;
 
-public class BinManager {
+public class DBManager {
     BTreeMap fileDB;
     DB dbMaker;
 
-    public BinManager(String dbPath) {
+    public DBManager(String dbPath) {
         dbMaker = DBMaker.fileDB(dbPath).make();
         fileDB = dbMaker.treeMap("btree", Serializer.STRING, Serializer.JAVA).createOrOpen();
     }
@@ -24,31 +21,6 @@ public class BinManager {
     public void close() {
         if (!fileDB.isClosed()) fileDB.close();
         if (!dbMaker.isClosed()) dbMaker.close();
-    }
-
-    public String uploadFile(UploadedFile uploadedFile) throws IOException {
-        File targetFile;
-
-        // generate file until new id
-        do {
-            targetFile = Paths.get("files", UUID.randomUUID().toString()).toFile();
-        } while(targetFile.exists());
-
-        targetFile.getParentFile().mkdirs();
-
-        // get the file from user
-        InputStream uploadedFileContent = uploadedFile.content();
-        OutputStream outStream = new FileOutputStream(targetFile);
-        byte[] buffer = new byte[512 * 1024];
-        int bytesRead;
-        while ((bytesRead = uploadedFileContent.read(buffer)) != -1) {
-            outStream.write(buffer, 0, bytesRead);
-        }
-
-        outStream.close();
-        uploadedFileContent.close();
-
-        return targetFile.toString();
     }
 
     public void addFileToBin(String binID, String name, String localPath, long size) {

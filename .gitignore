@@ -41,5 +41,5 @@ bin/
 ### Mac OS ###
 .DS_Store
 
-files/
+file-uploads/
 files.db

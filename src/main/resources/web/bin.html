@@ -13,7 +13,7 @@
     <div style="width: 70%; margin: 0 15%;">
         <span style="font-weight: bold;" class="title"><span
                 style="color: #2f6fce;">Nad</span>Bin</span><br />
-        <span style="font-size: 1rem;" class="subtitle">/{{bin}} <span id="creation-date"></span></span>
+        <span id="bin-id" style="font-size: 1rem;" class="subtitle">/</span> <span id="creation-date" style="font-size: 1rem;" class="subtitle"></span>
         <br />
         <div id="doesnt-exist-warning" class="warning" style="display: none;">This bin doesn't exist, uploading files will create it.</div>
         <br />
@@ -37,6 +37,9 @@
     </div>
 
     <script>
+        const BIN_ID = location.pathname.substr(1);
+        document.getElementById("bin-id").innerText = `/${BIN_ID}`;
+
         const uploadProgresses = document.getElementById("upload-progresses");
 
         async function upload() {
@@ -77,7 +80,7 @@
                     uploadProgress.remove();
                 });
 
-                xhr.open("POST", `/{{bin}}/${file.name}`, true);
+                xhr.open("POST", `/${BIN_ID}/${file.name}`, true);
 
                 const formData = new FormData();
                 formData.append("file", file);
@@ -93,7 +96,7 @@
 
         async function update() {
             // the ?bin search param does nothing, it's just here to prevent browsers from displaying json instead of the site sometimes
-            let result = await fetch("/{{bin}}?bin", { method: "GET", headers: { "Accept": "application/json" } });
+            let result = await fetch(`/${BIN_ID}?bin`, { method: "GET", headers: { "Accept": "application/json" } });
             let data = await result.json();
 
             document.getElementById("creation-date").innerText = "";
@@ -112,7 +115,7 @@
                     }
 
                     let name = document.createElement("a");
-                    name.href = `/{{bin}}/${fileName}`;
+                    name.href = `/${BIN_ID}/${fileName}`;
                     name.innerText = fileName;
                     addColumn(name);
 
@@ -127,7 +130,7 @@
                     let delButton = document.createElement("button");
                     delButton.classList.add("delete-button");
                     delButton.addEventListener("click", () => {
-                        fetch(`/{{bin}}/${fileName}`, { method: "DELETE" }).then(() => {
+                        fetch(`/${BIN_ID}/${fileName}`, { method: "DELETE" }).then(() => {
                             update();
                         });
                     });
@@ -144,7 +147,7 @@
         }
 
         function remove() {
-            fetch(`/{{bin}}`, { method: "DELETE" }).then(() => {
+            fetch(`/${BIN_ID}`, { method: "DELETE" }).then(() => {
                 update();
             });
         }

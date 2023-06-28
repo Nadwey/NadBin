@@ -1,201 +1,221 @@
 package pl.nadwey.NadBin;
 
 import com.google.gson.Gson;
-import io.javalin.Javalin;
-import io.javalin.http.Context;
-import io.javalin.http.UploadedFile;
+import io.vertx.core.Vertx;
+import io.vertx.core.file.FileSystem;
+import io.vertx.core.http.HttpMethod;
+import io.vertx.core.http.HttpServer;
+import io.vertx.ext.web.FileUpload;
+import io.vertx.ext.web.Router;
+import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.handler.BodyHandler;
+import io.vertx.ext.web.handler.StaticHandler;
 
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Main {
-    static BinManager binManager;
-    static ArrayList<String> reservedBins = new ArrayList<>();
+    // TODO: make config file or something
+    static final int MIN_BIN_NAME_LENGTH = 15;
+    static final String ALLOWED_BIN_REGEX = "^[a-zA-Z0-9-_]+$";
 
-    public static void main(String[] args) {
-        Javalin app = Javalin.create().start(7000);
-        binManager = new BinManager("./files.db");
+    static DBManager dbManager;
 
+    public static void main(String[] args) throws Exception {
+        dbManager = new DBManager("./files.db");
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             System.out.println("Shutting down...");
-            binManager.close();
+            dbManager.close();
         }));
 
-        serveResource(app, "web/index.html", "/");
-        serveResource(app, "web/style.css", "/style.css");
-        serveResource(app, "web/Quicksand.ttf", "/Quicksand.ttf");
-        serveResource(app, "web/trash.svg", "/trash.svg");
+        Vertx vertx = Vertx.vertx();
+        HttpServer server = vertx.createHttpServer();
+        Router router = Router.router(vertx);
 
-        app.get("/new-bin", ctx -> {
-            String binID;
-            do {
-                binID = UUID.randomUUID().toString();
-            } while(binManager.binExists(binID));
+        router.route("/*").handler(StaticHandler.create());
 
-            ctx.redirect("/" + binID);
-        });
-        reservedBins.add("new-bin");
+        router
+                .route(HttpMethod.GET, "/test")
+                .handler(ctx -> {
+                    System.out.println("test");
 
-        app.get("/{bin}/{file}", ctx -> {
-            String binParam = ctx.pathParam("bin");
-            String fileParam = ctx.pathParam("file");
+                    // Do something with them...
+                });
 
-            if (!binManager.binExists(binParam)) {
-                fail(ctx, "Bin doesn't exist.", 404);
-                return;
-            }
-            DBFile file = binManager.getFile(binParam, fileParam);
+        router
+                .route(HttpMethod.GET, "/:binID")
+                .handler(ctx -> {
+                    String binID = ctx.pathParam("binID");
 
-            if (file.localPath == null) {
-                fail(ctx, "File doesn't exist.", 404);
-                return;
-            }
+                    if (ctx.request().getHeader("Accept") != null && ctx.request().getHeader("Accept").equalsIgnoreCase("application/json")) {
+                        if (!dbManager.binExists(binID)) {
+                            status(ctx, "Bin doesn't exist.", 404);
+                            return;
+                        }
 
-            try {
-                String mimeType = Files.probeContentType(Paths.get(fileParam));
-                ctx.header("Content-Disposition", "attachment; filename=\"" + fileParam + "\"");
-                ctx.header("Content-Type", mimeType == null ? "application/octet-stream" : mimeType);
-                ctx.header("Content-Length", Long.toString(file.size));
-                ctx.result(new FileInputStream(file.localPath));
-            } catch (FileNotFoundException e) {
-                fail(ctx, "Error reading file.");
-            }
-        });
+                        ArrayList<HashMap<String, Object>> fileList = new ArrayList<>();
 
-        app.post("/{bin}/{file}", ctx -> {
-            String binParam = ctx.pathParam("bin");
-            String fileParam = ctx.pathParam("file");
+                        Bin bin = dbManager.getBin(binID);
+                        for (final DBFile file : bin.files) {
+                            HashMap<String, Object> fileMap = new HashMap<>();
 
-            if (!binParam.matches("^[a-zA-Z0-9-_]+$")) {
-                fail(ctx, "Invalid bin name", 400);
-                return;
-            }
+                            String mimeType = null;
+                            try {
+                                mimeType = Files.probeContentType(Paths.get(file.name));
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
 
-            UploadedFile uploadedFile = ctx.uploadedFile("file");
-            if (uploadedFile == null) {
-                fail(ctx, "No uploaded file", 400);
-                return;
-            }
-            if (reservedBins.contains(binParam)) {
-                fail(ctx, "Reserved bin name", 403);
-                return;
-            }
-            if (binManager.binExists(binParam, fileParam)) {
-                fail(ctx, "File with the same name already exists", 409);
-                return;
-            }
+                            fileMap.put("name", file.name);
+                            fileMap.put("type", mimeType == null ? "application/octet-stream" : mimeType);
+                            fileMap.put("size", file.size);
 
-            String result = binManager.uploadFile(uploadedFile);
+                            fileList.add(fileMap);
+                        }
 
-            binManager.addFileToBin(binParam, fileParam, result, uploadedFile.size());
+                        Map<String, Object> resultMap = new HashMap<>();
 
-            Gson gson = new Gson();
-            Map<String, String> resultMap = new HashMap<>();
-            resultMap.put("message", "Success");
+                        resultMap.put("files", fileList);
+                        resultMap.put("creationDate", bin.creationDate.toString());
 
-            ctx.result(gson.toJson(resultMap));
-        });
+                        Gson gson = new Gson();
+                        ctx.response().end(gson.toJson(resultMap));
+                        return;
+                    }
 
-        app.delete("/{bin}/{file}", ctx -> {
-            String binParam = ctx.pathParam("bin");
-            String fileParam = ctx.pathParam("file");
+                    ctx.response().sendFile("web/bin.html");
+                });
 
-            if (!binManager.binExists(binParam, fileParam)) {
-                fail(ctx, "Specified bin or file doesn't exist.", 404);
-                return;
-            }
 
-            binManager.remove(binParam, fileParam);
+        router
+                .route(HttpMethod.POST, "/:binID/:filename")
+                .handler(ctx -> {
+                    String binID = ctx.pathParam("binID");
+                    String filename = ctx.pathParam("filename");
 
-            ctx.result();
-        });
+                    if (!binID.matches(ALLOWED_BIN_REGEX)) {
+                        status(ctx, "Invalid bin name", 400);
+                        return;
+                    }
+                    if (binID.length() < MIN_BIN_NAME_LENGTH) {
+                        status(ctx, "Bin name is too short", 400);
+                        return;
+                    }
+                    if (dbManager.binExists(binID, filename)) {
+                        status(ctx, "File already exists.", 409);
+                        return;
+                    }
 
-        app.delete("/{bin}", ctx -> {
-            String binParam = ctx.pathParam("bin");
+                    ctx.next();
+                });
+        router.route().handler(BodyHandler.create());
+        router
+                .route(HttpMethod.POST, "/:binID/:filename")
+                .handler(ctx -> {
+                    System.out.println("test2");
 
-            if (!binManager.binExists(binParam)) {
-                fail(ctx, "Specified bin doesn't exist.", 404);
-                return;
-            }
+                    String binID = ctx.pathParam("binID");
+                    String filename = ctx.pathParam("filename");
 
-            binManager.removeBin(binParam);
+                    System.out.println(ctx.fileUploads().size());
+                    if (ctx.fileUploads().size() != 1) {
+                        for (FileUpload fileUpload : ctx.fileUploads()) {
+                            FileSystem fileSystem = ctx.vertx().fileSystem();
+                            if (!fileUpload.cancel()) {
+                                String uploadedFileName = fileUpload.uploadedFileName();
+                                fileSystem.delete(uploadedFileName);
+                            }
+                        }
+                        status(ctx, "Wrong amount of files.", 400);
+                        return;
+                    }
 
-            ctx.result();
-        });
+                    FileUpload uploadedFile = ctx.fileUploads().get(0);
+                    dbManager.addFileToBin(binID, filename, uploadedFile.uploadedFileName(), uploadedFile.size());
 
-        app.get("/{bin}", ctx -> {
-            String binParam = ctx.pathParam("bin");
+                    status(ctx, "Successfully uploaded the file.", 200);
+                });
 
-            if (!binParam.matches("^[a-zA-Z0-9-_]+$")) {
-                fail(ctx, "Invalid bin name", 400);
-                return;
-            }
+        router
+                .route(HttpMethod.GET, "/:binID/:filename")
+                .handler(ctx -> {
+                    String binID = ctx.pathParam("binID");
+                    String filename = ctx.pathParam("filename");
 
-            if (ctx.header("Accept") != null && Objects.equals(ctx.header("Accept"), "application/json")) {
-                if (!binManager.binExists(binParam)) {
-                    fail(ctx, "Bin doesn't exist.", 404);
-                    return;
-                }
+                    if (!dbManager.binExists(binID)) {
+                        status(ctx, "Bin doesn't exist.", 404);
+                        return;
+                    }
+                    DBFile file = dbManager.getFile(binID, filename);
 
-                ArrayList<HashMap<String, Object>> fileList = new ArrayList<>();
+                    if (file.localPath == null) {
+                        status(ctx, "File doesn't exist.", 404);
+                        return;
+                    }
 
-                Bin bin = binManager.getBin(binParam);
-                for (final DBFile file : bin.files) {
-                    HashMap<String, Object> fileMap = new HashMap<>();
+                    try {
+                        String mimeType = Files.probeContentType(Paths.get(filename));
+                        ctx.response().putHeader("Content-Type", mimeType == null ? "application/octet-stream" : mimeType);
+                        ctx.response().putHeader("Content-Length", Long.toString(file.size));
+                        ctx.response().sendFile(file.localPath);
+                    } catch (FileNotFoundException e) {
+                        status(ctx, "Error reading file.", 500);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
 
-                    String mimeType = Files.probeContentType(Paths.get(file.name));
+        router
+                .route(HttpMethod.DELETE, "/:binID/:filename")
+                .handler(ctx -> {
 
-                    fileMap.put("name", file.name);
-                    fileMap.put("type", mimeType == null ? "application/octet-stream" : mimeType);
-                    fileMap.put("size", file.size);
+                    String binID = ctx.pathParam("binID");
+                    String filename = ctx.pathParam("filename");
 
-                    fileList.add(fileMap);
-                }
+                    if (!dbManager.binExists(binID, filename)) {
+                        status(ctx, "Specified bin or file doesn't exist.", 404);
+                        return;
+                    }
 
-                Map<String, Object> resultMap = new HashMap<>();
+                    dbManager.remove(binID, filename);
 
-                resultMap.put("files", fileList);
-                resultMap.put("creationDate", bin.creationDate.toString());
+                    status(ctx, "Successfully removed file", 200);
+                });
 
-                Gson gson = new Gson();
-                ctx.result(gson.toJson(resultMap));
-                return;
-            }
+        router
+                .route(HttpMethod.DELETE, "/:binID")
+                .handler(ctx -> {
 
-            Map<String, Object> model = new HashMap<>();
-            model.put("bin", binParam);
+                    String binID = ctx.pathParam("binID");
 
-            ctx.render("web/bin.mustache", model);
-        });
+                    if (!dbManager.binExists(binID)) {
+                        status(ctx, "Specified bin doesn't exist.", 404);
+                        return;
+                    }
+
+                    dbManager.removeBin(binID);
+
+                    status(ctx, "Successfully removed bin", 200);
+                });
+
+
+
+        server.requestHandler(router).listen(7000);
     }
 
-    private static void fail(Context ctx, String message, int code) {
+    private static void status(RoutingContext ctx, String message, int code) {
         Gson gson = new Gson();
         Map<String, String> resultMap = new HashMap<>();
         resultMap.put("message", message);
 
-        ctx.status(code);
-        ctx.result(gson.toJson(resultMap));
-    }
-
-    private static void fail(Context ctx, String message) {
-        fail(ctx, message, 500);
-    }
-
-    private static void serveResource(Javalin app, String path, String url) {
-        Path filename = Paths.get(url);
-        if (filename.getNameCount() > 0) {
-            reservedBins.add(filename.getName(0).toString());
-        }
-
-        app.get(url, ctx -> {
-            ClassLoader classloader = Thread.currentThread().getContextClassLoader();
-            InputStream in = classloader.getResourceAsStream(path);
-            ctx.contentType(Files.probeContentType(Paths.get(path)));
-            if (in != null) ctx.result(in);
-        });
+        ctx.response().setStatusCode(code);
+        ctx.response().putHeader("content-type", "application/json");
+        ctx.response().end(gson.toJson(resultMap));
     }
 }
