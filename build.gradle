@@ -48,12 +48,21 @@ jar {
     }
 }
 
+private static int getVersion() {
+    String version = System.getProperty("java.version");
+    if(version.startsWith("1.")) {
+        version = version.substring(2, 3);
+    } else {
+        int dot = version.indexOf(".");
+        if(dot != -1) { version = version.substring(0, dot); }
+    }
+    return Integer.parseInt(version);
+}
+
 shadowJar {
-    def javaVersion = System.getProperty('java.version').tokenize(".")[0];
+    System.out.println(getVersion());
 
-    System.out.println(javaVersion);
-
-    archiveFileName = "NadBin-${version}-java${javaVersion}.jar"
+    archiveFileName = "NadBin-${version}-java${getVersion()}.jar"
 }
 
 application {
