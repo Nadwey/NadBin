@@ -25,30 +25,17 @@ And the code is very shitty, I'm working on it, I promise :D
 - Run the jar file with `java -jar NadBin-<VERSION>-all.jar`
 - The server will be available at `http://localhost:7000`
 
-### Nginx configuration
+### Webserver configuration
 
-#### Without SSL
+#### Caddy
 
-```nginx
-server {
-        listen 80;
-        listen [::]:80;
-
-        client_max_body_size 10000M; # max file size that is accepted by Nginx
-
-        server_name example.com; # your domain
-
-        location / {
-                proxy_pass http://127.0.0.1:7000;
-        }
-
-        # disable logging
-        access_log off;
-        error_log /dev/null;
+```caddy
+nadbin.nadwey.pl {
+        reverse_proxy localhost:7000
 }
 ```
 
-#### With SSL
+#### Nginx 
 
 ```nginx
 server {
@@ -68,6 +55,9 @@ server {
         client_max_body_size 10000M; # max file size that is accepted by Nginx
 
         server_name example.com; # your domain
+
+        sendfile           on;
+        sendfile_max_chunk 10m;
 
         ssl_certificate /path/to/your/cert.pem;
         ssl_certificate_key /path/to/your/privkey.pem;
