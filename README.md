@@ -30,7 +30,7 @@ And the code is very shitty, I'm working on it, I promise :D
 #### Caddy
 
 ```caddy
-nadbin.nadwey.pl {
+example.com {
         reverse_proxy localhost:7000
 }
 ```
