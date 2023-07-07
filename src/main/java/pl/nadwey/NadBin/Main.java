@@ -31,7 +31,7 @@ public class Main {
 
     static DBManager dbManager;
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         dbManager = new DBManager("./files.db");
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             System.out.println("Shutting down...");
@@ -53,14 +53,6 @@ public class Main {
                     } while (dbManager.binExists(binID));
 
                     ctx.redirect("/" + binID);
-                });
-
-        router
-                .route(HttpMethod.GET, "/test")
-                .handler(ctx -> {
-                    System.out.println("test");
-
-                    // Do something with them...
                 });
 
         router
@@ -133,12 +125,10 @@ public class Main {
         router
                 .route(HttpMethod.POST, "/:binID/:filename")
                 .handler(ctx -> {
-                    System.out.println("test2");
 
                     String binID = ctx.pathParam("binID");
                     String filename = ctx.pathParam("filename");
 
-                    System.out.println(ctx.fileUploads().size());
                     if (ctx.fileUploads().size() != 1) {
                         for (FileUpload fileUpload : ctx.fileUploads()) {
                             FileSystem fileSystem = ctx.vertx().fileSystem();
