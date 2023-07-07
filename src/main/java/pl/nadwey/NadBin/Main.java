@@ -10,8 +10,11 @@ import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.StaticHandler;
-
-import java.io.FileInputStream;
+import net.sourceforge.argparse4j.ArgumentParsers;
+import net.sourceforge.argparse4j.impl.Arguments;
+import net.sourceforge.argparse4j.inf.ArgumentParser;
+import net.sourceforge.argparse4j.inf.ArgumentParserException;
+import net.sourceforge.argparse4j.inf.Namespace;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -216,10 +219,24 @@ public class Main {
                     status(ctx, "Successfully removed bin", 200);
                 });
 
+        ArgumentParser parser = ArgumentParsers.newFor("NadBin").build()
+                .description("Temporary anonymous file sharing")
+                .defaultHelp(true);
 
+        parser.addArgument("--port")
+                .type(Integer.class)
+                .required(false)
+                .setDefault(7000)
+                .help("HTTP port to run NadBin on");
+        try {
+            Namespace res = parser.parseArgs(args);
+            final int port = res.getInt("port");
 
-        server.requestHandler(router).listen(7000);
-        System.out.println("NadBin running on port 7000");
+            server.requestHandler(router).listen(port);
+            System.out.println("NadBin running on port " + port);
+        } catch (ArgumentParserException e) {
+            parser.handleError(e);
+        }
     }
 
     private static void status(RoutingContext ctx, String message, int code) {
