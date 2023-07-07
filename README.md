@@ -21,7 +21,7 @@ And the code is very shitty, I'm working on it, I promise :D
 
 ### Install & Run
 
-- Download the latest release from the [releases page](https://github.com/Nadwey/NadBin/releases/latest)
+- Download the latest release from the [releases page](https://github.com/Nadwey/NadBin/releases/latest) or latest development build from [here](https://github.com/Nadwey/NadBin/actions/workflows/gradle.yml)
 - Run the jar file with `java -jar NadBin-<VERSION>-all.jar`
 - The server will be available at `http://localhost:7000`
 
