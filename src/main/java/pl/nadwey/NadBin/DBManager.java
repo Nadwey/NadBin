@@ -1,13 +1,12 @@
 package pl.nadwey.NadBin;
 
-import org.mapdb.BTreeMap;
-import org.mapdb.DB;
-import org.mapdb.DBMaker;
-import org.mapdb.Serializer;
+import org.mapdb.*;
 
 import java.io.File;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Iterator;
+import java.util.NavigableSet;
 
 public class DBManager {
     BTreeMap fileDB;
@@ -15,7 +14,12 @@ public class DBManager {
 
     public DBManager(String dbPath) {
         dbMaker = DBMaker.fileDB(dbPath).make();
-        fileDB = dbMaker.treeMap("btree", Serializer.STRING, Serializer.JAVA).createOrOpen();
+        try {
+            fileDB = dbMaker.treeMap("btree", Serializer.STRING, Serializer.JAVA).createOrOpen();
+        }
+        catch (DBException.SerializationError ex) {
+            System.err.println("Existing database is incompatible with the current one. Please remove the \"files.db\" file. Maybe I will make a tool for converting...");
+        }
     }
 
     public void close() {
@@ -27,7 +31,7 @@ public class DBManager {
         Bin bin = getBin(binID);
         if (bin == null) {
             bin = new Bin();
-            bin.creationDate = LocalDate.now();
+            bin.creationDate = LocalDateTime.now();
         }
 
         if (binExists(bin, name)) return;
@@ -110,5 +114,25 @@ public class DBManager {
         }
 
         fileDB.remove(binID);
+    }
+
+    public void removeExpiredBins(Long maxBinAge) {
+        NavigableSet<String> binIDs = fileDB.getKeys();
+        int removedBins = 0;
+
+        for (final String binID : binIDs) {
+            Bin bin = getBin(binID);
+            if (bin == null) continue;
+
+            LocalDateTime minimalCreationDate = LocalDateTime.now().minus(maxBinAge, ChronoUnit.MINUTES);
+            if (bin.creationDate.isBefore(minimalCreationDate)) {
+                removeBin(binID);
+                removedBins++;
+            }
+        }
+
+        if (removedBins > 0) {
+            System.out.println("Removed " + removedBins + " expired bins");
+        }
     }
 }

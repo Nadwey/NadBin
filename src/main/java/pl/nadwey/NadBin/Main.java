@@ -11,7 +11,6 @@ import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.StaticHandler;
 import net.sourceforge.argparse4j.ArgumentParsers;
-import net.sourceforge.argparse4j.impl.Arguments;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
@@ -19,15 +18,13 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class Main {
     // TODO: make config file or something
     static final int MIN_BIN_NAME_LENGTH = 15;
     static final String ALLOWED_BIN_REGEX = "^[a-zA-Z0-9-_]+$";
+    static Long maxBinAge = 0L;
 
     static DBManager dbManager;
 
@@ -218,9 +215,31 @@ public class Main {
                 .required(false)
                 .setDefault(7000)
                 .help("HTTP port to run NadBin on");
+
+        parser.addArgument("--max-bin-age")
+                .type(Long.class)
+                .required(false)
+                .setDefault(10080L)
+                .dest("max-bin-age")
+                .help("Maximum bin age in minutes");
+
         try {
             Namespace res = parser.parseArgs(args);
             final int port = res.getInt("port");
+            maxBinAge = res.getLong("max-bin-age");
+
+            new Timer().scheduleAtFixedRate(new TimerTask(){
+                @Override
+                public void run(){
+                    try {
+                        dbManager.removeExpiredBins(maxBinAge);
+                    }
+                    catch (Exception ex) {
+                        System.out.println("Failed to remove expired bins");
+                        ex.printStackTrace();
+                    }
+                }
+            },0, (maxBinAge * 60L) / 2L);
 
             server.requestHandler(router).listen(port);
             System.out.println("NadBin running on port " + port);
