@@ -13,6 +13,8 @@ And the code is very shitty, I'm working on it, I promise :D
 
 ![NadBin index page](nadbin-index.png)
 
+[Demo instance](https://nadbin.nadwey.pl)
+
 ## Setup
 
 ### Requirements
