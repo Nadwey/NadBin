@@ -18,6 +18,7 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("io.vertx:vertx-core:4.4.4")
     implementation("io.vertx:vertx-web:4.4.4")
+    implementation("org.apache.tika:tika-core:2.8.0")
 }
 
 sourceSets {
@@ -66,5 +67,5 @@ shadowJar {
 }
 
 application {
-    mainClassName = "pl.nadwey.NadBin.Main"
+    mainClass.set("pl.nadwey.NadBin.Main")
 }

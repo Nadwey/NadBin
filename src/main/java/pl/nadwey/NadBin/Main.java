@@ -14,6 +14,8 @@ import net.sourceforge.argparse4j.ArgumentParsers;
 import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.Namespace;
+import org.apache.tika.Tika;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -66,15 +68,13 @@ public class Main {
                         ArrayList<HashMap<String, Object>> fileList = new ArrayList<>();
 
                         Bin bin = dbManager.getBin(binID);
+                        Tika tika = new Tika();
                         for (final DBFile file : bin.files) {
                             HashMap<String, Object> fileMap = new HashMap<>();
 
                             String mimeType = null;
-                            try {
-                                mimeType = Files.probeContentType(Paths.get(file.name));
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
-                            }
+
+                            mimeType = tika.detect(file.name);
 
                             fileMap.put("name", file.name);
                             fileMap.put("type", mimeType == null ? "application/octet-stream" : mimeType);
