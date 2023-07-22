@@ -161,16 +161,12 @@ public class Main {
                         return;
                     }
 
-                    try {
-                        String mimeType = Files.probeContentType(Paths.get(filename));
-                        ctx.response().putHeader("Content-Type", mimeType == null ? "application/octet-stream" : mimeType);
-                        ctx.response().putHeader("Content-Length", Long.toString(file.size));
-                        ctx.response().sendFile(file.localPath);
-                    } catch (FileNotFoundException e) {
-                        status(ctx, "Error reading file.", 500);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
+                    Tika tika = new Tika();
+                    String mimeType = tika.detect(filename);
+
+                    ctx.response().putHeader("Content-Type", mimeType == null ? "application/octet-stream" : mimeType);
+                    ctx.response().putHeader("Content-Length", Long.toString(file.size));
+                    ctx.response().sendFile(file.localPath);
                 });
 
         router
