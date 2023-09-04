@@ -17,7 +17,7 @@ dependencies {
     implementation("org.mapdb:mapdb:3.0.9")
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("io.vertx:vertx-core:4.4.4")
-    implementation("io.vertx:vertx-web:4.4.4")
+    implementation("io.vertx:vertx-web:4.4.5")
     implementation("org.apache.tika:tika-core:2.8.0")
 }
 
