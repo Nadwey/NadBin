@@ -30,7 +30,7 @@ jobs:
       uses: actions/setup-java@v3
       with:
         java-version: '${{ matrix.version }}'
-        distribution: 'temurin'
+        distribution: 'liberica'
     - name: Build with Gradle
       uses: gradle/gradle-build-action@v2
       with:
