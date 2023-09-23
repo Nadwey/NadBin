@@ -61,9 +61,7 @@ private static int getVersion() {
 }
 
 shadowJar {
-    System.out.println(getVersion());
-
-    archiveFileName = "NadBin-${version}-java${getVersion()}.jar"
+    archiveFileName = "NadBin-${project.version}-java${getVersion()}.jar"
 }
 
 application {
