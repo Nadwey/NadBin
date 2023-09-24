@@ -18,12 +18,14 @@ fastify.register(require("@fastify/static"), {
 const getBin = require("./handlers/getBin");
 const getBinFile = require("./handlers/getBinFile");
 const postBinFile = require("./handlers/postBinFile");
+const deleteBinFile = require("./handlers/deleteBinFile");
 const getNewBin = require("./handlers/getNewBin");
 const BinManager = require("./binManager/BinManager");
 
 fastify.get("/:bin", getBin);
 fastify.get("/:bin/:file", getBinFile);
 fastify.post("/:bin/:file", postBinFile);
+fastify.delete("/:bin/:file", deleteBinFile);
 fastify.get("/new-bin", getNewBin);
 
 fastify.setErrorHandler(async (error, request, reply) => {

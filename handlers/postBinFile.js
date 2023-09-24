@@ -28,8 +28,7 @@ function postBinFile(req, reply) {
             return reply.status(400).send("Invalid bin name\nBin names must be at least 16 characters long and can only contain alphanumeric characters, dashes, and underscores");
 
         const binData = await binManager.getBin(bin);
-        if (binData === null) return reply.status(404).send("Bin not found");
-        if (binData.isLocked) return reply.status(403).send("Bin is locked");
+        if (binData?.isLocked) return reply.status(403).send("Bin is locked");
 
         if (await binManager.getFile(bin, file)) return reply.status(409).send("File already exists");
 

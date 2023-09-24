@@ -1,4 +1,5 @@
 const { QuickDB } = require("quick.db");
+const fs = require("fs");
 
 /**
  * @typedef {Object} File
@@ -94,6 +95,20 @@ class BinManager {
         if (!Array.isArray(binData.files)) return null;
 
         return binData.files.find((file) => file.name === fileName);
+    }
+
+    async deleteFile(bin, fileName) {
+        const fileData = await this.getFile(bin, fileName);
+        if (!fileData) return false;
+
+        const binData = await BinManager.db.get(bin);
+        const fileIndex = binData.files.findIndex((file) => file.name === fileName);
+        binData.files.splice(fileIndex, 1);
+        await BinManager.db.set(bin, binData);
+
+        fs.rmSync(fileData.localPath, { force: true });
+
+        return true;
     }
 
     /**
