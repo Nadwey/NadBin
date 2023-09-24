@@ -63,7 +63,6 @@ class BinManager {
     }
 
     async addFile(bin, file) {
-        console.log(bin);
         if (!(await BinManager.db.has(bin))) await BinManager.db.set(bin, makeBin(bin, new Date().toISOString(), false));
 
         const binData = await BinManager.db.get(bin);
@@ -74,8 +73,8 @@ class BinManager {
     }
 
     /**
-     * 
-     * @param {string} bin 
+     *
+     * @param {string} bin
      * @returns {Bin}
      */
     async getBin(bin) {
@@ -84,9 +83,9 @@ class BinManager {
 
     /**
      * Returns file if it exists
-     * 
-     * @param {string} bin 
-     * @param {string} fileName 
+     *
+     * @param {string} bin
+     * @param {string} fileName
      * @returns {File}
      */
     async getFile(bin, fileName) {
@@ -111,10 +110,23 @@ class BinManager {
         return true;
     }
 
+    async deleteBin(bin) {
+        const binData = await BinManager.db.get(bin);
+        if (!binData) return false;
+
+        if (Array.isArray(binData.files)) {
+            for await (const file of binData.files) {
+                fs.rmSync(file.localPath, { force: true });
+            }
+        }
+
+        await BinManager.db.delete(bin);
+    }
+
     /**
      * Checks if a bin name is valid
-     * 
-     * @param {string} name 
+     *
+     * @param {string} name
      * @returns {boolean}
      */
     static isValidBinName(name) {

@@ -76,46 +76,54 @@ async function update() {
  * @param {*} file
  */
 function uploadFile(file) {
-    const uploadProgress = document.createElement("div");
-    uploadProgress.classList.add("upload-progress");
+    return new Promise((resolve, reject) => {
+        const uploadProgress = document.createElement("div");
+        uploadProgress.classList.add("upload-progress");
 
-    const uploadText = document.createElement("span");
+        const uploadText = document.createElement("span");
 
-    const uploadBar = document.createElement("div");
-    uploadBar.classList.add("upload-bar");
+        const uploadBar = document.createElement("div");
+        uploadBar.classList.add("upload-bar");
 
-    uploadProgress.appendChild(uploadText);
-    uploadProgress.appendChild(uploadBar);
+        uploadProgress.appendChild(uploadText);
+        uploadProgress.appendChild(uploadBar);
 
-    let xhr = new XMLHttpRequest();
-    xhr.upload.addEventListener("progress", function (e) {
-        if (e.lengthComputable) {
-            const percentComplete = (e.loaded / e.total) * 100;
-            uploadText.innerText = `${file.name} - ${percentComplete.toFixed(2)}% | ${(e.loaded / 1024 / 1024).toFixed(3)}MiB / ${(e.total / 1024 / 1024).toFixed(3)}MiB`;
-            uploadBar.style.width = `${percentComplete}%`;
-        }
+        let xhr = new XMLHttpRequest();
+        xhr.upload.addEventListener("progress", function (e) {
+            if (e.lengthComputable) {
+                const percentComplete = (e.loaded / e.total) * 100;
+                uploadText.innerText = `${file.name} - ${percentComplete.toFixed(2)}% | ${(e.loaded / 1024 / 1024).toFixed(3)}MiB / ${(e.total / 1024 / 1024).toFixed(3)}MiB`;
+                uploadBar.style.width = `${percentComplete}%`;
+            }
+        });
+
+        xhr.addEventListener("load", function () {
+            update();
+            uploadProgress.remove();
+
+            if (xhr.status !== 200) {
+                alert(`Upload failed\n${xhr.responseText}`);
+                reject();
+                return;
+            }
+            resolve();
+        });
+
+        xhr.addEventListener("error", function () {
+            alert("Upload failed");
+            uploadProgress.remove();
+            reject();
+        });
+
+        xhr.open("POST", `/${BIN_ID}/${file.name}`, true);
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        xhr.send(formData);
+
+        document.getElementById("upload-progresses").appendChild(uploadProgress);
     });
-
-    xhr.addEventListener("load", function () {
-        update();
-        uploadProgress.remove();
-
-        if (xhr.status !== 200) return alert(`Upload failed\n${xhr.responseText}`);
-    });
-
-    xhr.addEventListener("error", function () {
-        alert("Upload failed");
-        uploadProgress.remove();
-    });
-
-    xhr.open("POST", `/${BIN_ID}/${file.name}`, true);
-
-    const formData = new FormData();
-    formData.append("file", file);
-
-    xhr.send(formData);
-
-    document.getElementById("upload-progresses").appendChild(uploadProgress);
 }
 
 async function upload() {
@@ -123,8 +131,13 @@ async function upload() {
     fileInput.multiple = true;
     fileInput.type = "file";
 
-    fileInput.onchange = () => {
-        for (const file of fileInput.files) uploadFile(file);
+    fileInput.onchange = async () => {
+        const promises = Array.from(fileInput.files).map((file) => {
+            return async () => {
+                await uploadFile(file);
+            };
+        });
+        await promiseAllStepN(3, Array.from(promises));
     };
 
     fileInput.click();

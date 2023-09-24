@@ -41,15 +41,17 @@ function postBinFile(req, reply) {
             console.error(err);
             fs.rmSync(fileLocalPath, { force: true });
             reply.status(500).send("Failed to upload file");
+            req.socket.removeListener("error", fail);
             reject();
         }
-
+        
         req.socket.on("error", fail);
         data.file.on("error", fail);
 
         data.file.on("end", async () => {
             await binManager.addFile(bin, BinManager.makeFile(file, fileLocalPath, data.file.bytesRead, new Date().toISOString()));
 
+            req.socket.removeListener("error", fail);
             resolve(reply.status(200).send("File uploaded"));
         });
 
