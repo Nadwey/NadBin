@@ -36,7 +36,7 @@ function createFileRow(file) {
 
     addColumn(tr, createLink(`/${BIN_ID}/${fileName}`, fileName));
     addColumn(tr, createSpan(file.size));
-    addColumn(tr, createSpan(file.type));
+    addColumn(tr, createSpan(new Date(file.uploadedAt).toLocaleString()));
 
     let delButton = document.createElement("button");
     delButton.classList.add("delete-button");
@@ -62,7 +62,7 @@ async function update() {
         setBinExists(true);
 
         const data = await result.json();
-        document.getElementById("creation-date").innerText = ` - Created ${data.creationDate}`;
+        document.getElementById("creation-date").innerText = ` - Created ${new Date(data.createdAt).toLocaleString()}`;
 
         for (const file of data.files) document.getElementById("files").appendChild(createFileRow(file));
     } else if (result.status === 404) {
@@ -99,6 +99,8 @@ function uploadFile(file) {
     xhr.addEventListener("load", function () {
         update();
         uploadProgress.remove();
+
+        if (xhr.status !== 200) return alert(`Upload failed\n${xhr.responseText}`);
     });
 
     xhr.addEventListener("error", function () {
@@ -120,7 +122,7 @@ async function upload() {
     let fileInput = document.createElement("input");
     fileInput.multiple = true;
     fileInput.type = "file";
-    
+
     fileInput.onchange = () => {
         for (const file of fileInput.files) uploadFile(file);
     };

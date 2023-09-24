@@ -1,0 +1,22 @@
+{
+  "name": "nadbin",
+  "version": "3.0.0-alpha.1",
+  "module": "index.js",
+  "type": "commonjs",
+  "scripts": {
+    "prettier": "prettier --write .",
+    "start": "node ."
+  },
+  "dependencies": {
+    "@fastify/multipart": "^7.7.3",
+    "@fastify/static": "^6.11.2",
+    "better-sqlite3": "^8.6.0",
+    "fastify": "^4.23.2",
+    "mime-types": "^2.1.35",
+    "quick.db": "^9.1.7"
+  },
+  "devDependencies": {
+    "@types/node": "^20.6.4",
+    "prettier": "^3.0.3"
+  }
+}
