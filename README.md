@@ -1,3 +1,5 @@
+# [⚠️ v3 is in development](https://github.com/Nadwey/NadBin/tree/v3)
+
 ![NadBin](nadbin.png)
 
 Temporary anonymous file sharing
