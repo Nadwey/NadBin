@@ -7,9 +7,9 @@ And the code is very shitty, I'm working on it, I promise :D
 
 ## Why NadBin?
 
-- Extremely easy to setup
-- Direct downloads without redirects
-- Very lightweight (at least on the client side)
+-   Extremely easy to setup
+-   Direct downloads without redirects
+-   Very lightweight (at least on the client side)
 
 ![NadBin index page](nadbin-index.png)
 
@@ -33,6 +33,17 @@ To run:
 npm start
 ```
 
+### Configuration
+
+Copy .env.example to .env and edit it.
+
+#### Variables
+
+| Name               | Description                                      | Default value |
+| ------------------ | ------------------------------------------------ | ------------- |
+| `PORT`             | Port on which NadBin will listen                 | `7000`        |
+| `PHUSIONPASSENGER` | Set to `true` if you are using Phusion Passenger | `false`       |
+
 ### Webserver configuration
 
 #### Caddy
@@ -43,7 +54,7 @@ example.com {
 }
 ```
 
-#### Nginx 
+#### Nginx
 
 ```nginx
 server {
