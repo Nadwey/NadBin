@@ -47,7 +47,7 @@ fastify.setErrorHandler(async (error, request, reply) => {
     } else {
         fastify.listen({ port: process.env.PORT || 7000 }, (err) => {
             if (err) throw err;
-            console.log(`NadBin listening on port `, fastify.server.address().port());
+            console.log("NadBin listening on port", fastify.server.address().port);
         });
     }
 })();
