@@ -39,7 +39,7 @@ fastify.setErrorHandler(async (error, request, reply) => {
     const binManager = new BinManager();
     await binManager.init();
 
-    if (typeof PhusionPassenger !== "undefined") {
+    if (typeof PhusionPassenger !== "undefined" || process.env.PHUSIONPASSENGER) {
         fastify.listen({ path: "passenger", host: "127.0.0.1" }, (err) => {
             if (err) throw err;
             console.log(`PhusionPassenger detected, listening on `, fastify.server.address().toString());
