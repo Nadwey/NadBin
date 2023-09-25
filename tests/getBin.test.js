@@ -5,7 +5,7 @@ let serverProcess = null;
 
 beforeAll(async () => {
     return new Promise(async(resolve, reject) => {
-        serverProcess = child_process.exec("node index.js");
+        serverProcess = child_process.spawn("node index.js");
 
         setTimeout(resolve, 5000);
     });
