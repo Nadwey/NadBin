@@ -33,7 +33,7 @@ To run:
 npm start
 ```
 
-### Configuration
+### NadBin Configuration
 
 Copy .env.example to .env and edit it.
 
