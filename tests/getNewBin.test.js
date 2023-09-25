@@ -23,7 +23,7 @@ describe("Tests GET /new-bin", () => {
 });
 
 afterAll(() => {
-    return new Promise(async(resolve, reject) => {
+    return new Promise((resolve, reject) => {
         process.kill(pid);
 
         setTimeout(resolve, 5000);
