@@ -23,7 +23,7 @@ describe("Tests GET /:bin", () => {
 
 afterAll(() => {
     return new Promise((resolve, reject) => {
-        serverProcess.kill("SIGINT");
+        serverProcess.kill("SIGKILL");
 
         setTimeout(resolve, 5000);
     });
