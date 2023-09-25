@@ -1,0 +1,31 @@
+name: Test NadBin
+
+on:
+    push:
+        branches: ["master", "v3"]
+    pull_request:
+        branches: ["master", "v3"]
+
+permissions:
+    contents: read
+
+jobs:
+    test_nadbin:
+        name: Test NadBin
+        strategy:
+            matrix:
+                os: [ubuntu-latest, macos-latest, windows-latest]
+        runs-on: ${{ matrix.os }}
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - uses: actions/setup-node@v3
+              with:
+                  node-version: current
+
+            - name: Install Dependencies
+              run: npm install
+
+            - name: Test
+              run: npm test
