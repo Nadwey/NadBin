@@ -1,6 +1,7 @@
 const fastify = require("fastify")();
 const fs = require("node:fs");
 const path = require("path");
+require("dotenv").config();
 
 fastify.register(require("@fastify/multipart"), {
     limits: {
@@ -38,8 +39,15 @@ fastify.setErrorHandler(async (error, request, reply) => {
     const binManager = new BinManager();
     await binManager.init();
 
-    fastify.listen({ port: 7000 }, (err) => {
-        if (err) throw err;
-        console.log(`server listening on ${fastify.server.address().port}`);
-    });
+    if (typeof PhusionPassenger !== "undefined") {
+        fastify.listen({ path: "passenger", host: "127.0.0.1" }, (err) => {
+            if (err) throw err;
+            console.log(`PhusionPassenger detected, listening on `, fastify.server.address().toString());
+        });
+    } else {
+        fastify.listen({ port: process.env.PORT || 7000 }, (err) => {
+            if (err) throw err;
+            console.log(`NadBin listening on port `, fastify.server.address().port());
+        });
+    }
 })();

@@ -1,6 +1,8 @@
 const BinManager = require("../binManager/BinManager");
 const fs = require("fs");
 
+const VALID_FILE_NAME_REGEX = /^[-\w^&'@{}[\],$=!#().%+~ ]+$/;
+
 function getLocalPath() {
     let fileLocalPath;
 
@@ -29,6 +31,8 @@ function postBinFile(req, reply) {
 
         const binData = await binManager.getBin(bin);
         if (binData?.isLocked) return reply.status(403).send("Bin is locked");
+
+        if (!VALID_FILE_NAME_REGEX.test(file)) return reply.status(400).send("Invalid file name");
 
         if (await binManager.getFile(bin, file)) return reply.status(409).send("File already exists");
 
