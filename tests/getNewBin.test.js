@@ -1,11 +1,11 @@
 const axios = require("axios").default;
 const child_process = require("child_process");
 
-let pid = null;
+let serverProcess = null;
 
 beforeAll(async () => {
     return new Promise(async(resolve, reject) => {
-        pid = child_process.exec("node index.js").pid;
+        serverProcess = child_process.exec("node index.js");
 
         setTimeout(resolve, 5000);
     });
@@ -24,7 +24,7 @@ describe("Tests GET /new-bin", () => {
 
 afterAll(() => {
     return new Promise((resolve, reject) => {
-        process.kill(pid);
+        serverProcess.kill();
 
         setTimeout(resolve, 5000);
     });
