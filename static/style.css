@@ -209,3 +209,11 @@ table a {
     vertical-align: middle;
     cursor: pointer;
 }
+
+#bin-id {
+    cursor: pointer;
+}
+
+#bin-id:hover {
+    text-decoration: underline;
+}

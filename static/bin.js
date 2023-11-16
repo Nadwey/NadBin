@@ -149,4 +149,9 @@ function remove() {
     });
 }
 
+function copyBinUrl() {
+    navigator.clipboard.writeText(location.href);
+    alert("Copied to clipboard");
+}
+
 update();
