@@ -11,14 +11,14 @@ beforeAll(async () => {
     });
 }, 10000);
 
-describe("Tests GET /new-bin", () => {
+describe("Tests GET /empty-bin", () => {
     test("Test redirect to random bin", async () => {
-        const req = await axios.get("http://localhost:7000/new-bin", {
+        const req = await axios.get("http://localhost:7000/empty-bin", {
             validateStatus: () => true,
         });
 
         const binPath = req.request.path;
-        expect(binPath).not.toBe("/new-bin");
+        expect(binPath).not.toBe("/empty-bin");
     });
 });
 

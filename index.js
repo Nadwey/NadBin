@@ -21,7 +21,7 @@ const deleteBin = require("./handlers/deleteBin");
 const getBinFile = require("./handlers/getBinFile");
 const postBinFile = require("./handlers/postBinFile");
 const deleteBinFile = require("./handlers/deleteBinFile");
-const getNewBin = require("./handlers/getNewBin");
+const getEmptyBin = require("./handlers/getEmptyBin");
 const BinManager = require("./binManager/BinManager");
 
 fastify.get("/:bin", getBin);
@@ -29,7 +29,7 @@ fastify.delete("/:bin", deleteBin);
 fastify.get("/:bin/:file", getBinFile);
 fastify.post("/:bin/:file", postBinFile);
 fastify.delete("/:bin/:file", deleteBinFile);
-fastify.get("/new-bin", getNewBin);
+fastify.get("/empty-bin", getEmptyBin);
 
 fastify.setErrorHandler(async (error, request, reply) => {
     console.log(error);
